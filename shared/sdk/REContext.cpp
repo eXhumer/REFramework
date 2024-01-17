@@ -1,6 +1,7 @@
 #include <shared_mutex>
 #include <spdlog/spdlog.h>
 
+#include "Memory.hpp"
 #include "utility/Scan.hpp"
 #include "utility/Module.hpp"
 
@@ -136,7 +137,7 @@ namespace sdk {
         for (auto i = 0; i < 0x20000; i += sizeof(void*)) {
             auto ptr = *(sdk::RETypeDB**)((uintptr_t)*s_global_context + i);
 
-            if (ptr == nullptr || IsBadReadPtr(ptr, sizeof(void*)) || ((uintptr_t)ptr & (sizeof(void*) - 1)) != 0) {
+            if (ptr == nullptr || sdk::memory::IsBadMemPtr(false, ptr, sizeof(void*)) || ((uintptr_t)ptr & (sizeof(void*) - 1)) != 0) {
                 continue;
             }
 

@@ -1,5 +1,6 @@
 #include <spdlog/spdlog.h>
 
+#include "Memory.hpp"
 #include "utility/Scan.hpp"
 #include "utility/Module.hpp"
 
@@ -194,19 +195,19 @@ bool is_managed_object(Address address) {
         return false;
     }
 
-    if (IsBadReadPtr(address.ptr(), sizeof(void*))) {
+    if (sdk::memory::IsBadMemPtr(false, address.ptr(), sizeof(void*))) {
         return false;
     }
 
     auto object = address.as<::REManagedObject*>();
 
-    if (object->info == nullptr || IsBadReadPtr(object->info, sizeof(void*))) {
+    if (object->info == nullptr || sdk::memory::IsBadMemPtr(false, object->info, sizeof(void*))) {
         return false;
     }
 
     auto class_info = object->info->classInfo;
 
-    if (class_info == nullptr || IsBadReadPtr(class_info, sizeof(void*))) {
+    if (class_info == nullptr || sdk::memory::IsBadMemPtr(false, class_info, sizeof(void*))) {
         return false;
     }
 
@@ -215,7 +216,7 @@ bool is_managed_object(Address address) {
 
     if ((uintptr_t)td->managed_vt != (uintptr_t)object->info) {
         // This allows for cases when a vtable hook is being used to replace this pointer.
-        if (IsBadReadPtr(td->managed_vt, sizeof(void*)) || *(sdk::RETypeDefinition**)td->managed_vt != td) {
+        if (sdk::memory::IsBadMemPtr(false, td->managed_vt, sizeof(void*)) || *(sdk::RETypeDefinition**)td->managed_vt != td) {
             return false;
         }
     }
@@ -224,17 +225,17 @@ bool is_managed_object(Address address) {
         return false;
     }
 
-    if (IsBadReadPtr(td->type, sizeof(REType)) || td->type->name == nullptr) {
+    if (sdk::memory::IsBadMemPtr(false, td->type, sizeof(REType)) || td->type->name == nullptr) {
         return false;
     }
 
-    if (IsBadReadPtr(td->type->name, sizeof(void*))) {
+    if (sdk::memory::IsBadMemPtr(false, td->type->name, sizeof(void*))) {
         return false;
     }
 #elif TDB_VER > 49
     if (class_info->parentInfo != object->info) {
         // This allows for cases when a vtable hook is being used to replace this pointer.
-        if (IsBadReadPtr(class_info->parentInfo, sizeof(void*)) || class_info->parentInfo->classInfo != class_info) {
+        if (sdk::memory::IsBadMemPtr(false, class_info->parentInfo, sizeof(void*)) || class_info->parentInfo->classInfo != class_info) {
             return false;
         }
     }
@@ -243,11 +244,11 @@ bool is_managed_object(Address address) {
         return false;
     }
 
-    if (IsBadReadPtr(class_info->type, sizeof(REType)) || class_info->type->name == nullptr) {
+    if (sdk::memory::IsBadMemPtr(false, class_info->type, sizeof(REType)) || class_info->type->name == nullptr) {
         return false;
     }
 
-    if (IsBadReadPtr(class_info->type->name, sizeof(void*))) {
+    if (sdk::memory::IsBadMemPtr(false, class_info->type->name, sizeof(void*))) {
         return false;
     }
 #else
@@ -257,19 +258,19 @@ bool is_managed_object(Address address) {
         return false;
     }
 
-    if (IsBadReadPtr(info->type, sizeof(REType)) || info->type->name == nullptr) {
+    if (sdk::memory::IsBadMemPtr(false, info->type, sizeof(REType)) || info->type->name == nullptr) {
         return false;
     }
 
-    if (IsBadReadPtr(info->type->name, sizeof(void*))) {
+    if (sdk::memory::IsBadMemPtr(false, info->type->name, sizeof(void*))) {
         return false;
     }
 
-    if (info->type->super != nullptr && IsBadReadPtr(info->type->super, sizeof(REType))) {
+    if (info->type->super != nullptr && sdk::memory::IsBadMemPtr(false, info->type->super, sizeof(REType))) {
         return false;
     }
 
-    if (info->type->classInfo != nullptr && IsBadReadPtr(info->type->classInfo, sizeof(REObjectInfo))) {
+    if (info->type->classInfo != nullptr && sdk::memory::IsBadMemPtr(false, info->type->classInfo, sizeof(REObjectInfo))) {
         return false;
     }
 

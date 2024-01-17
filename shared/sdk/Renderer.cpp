@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Memory.hpp"
 #include <utility/Scan.hpp>
 #include <utility/Module.hpp>
 
@@ -142,7 +143,7 @@ RenderLayer* RenderLayer::add_layer(::REType* layer_type, uint32_t priority, uin
         if (add_layer_fn == nullptr) {
             add_layer_fn = (decltype(add_layer_fn))utility::calculate_absolute(*ref + 10);
 
-            if (add_layer_fn == nullptr || IsBadReadPtr(add_layer_fn, sizeof(add_layer_fn))) {
+            if (add_layer_fn == nullptr || sdk::memory::IsBadMemPtr(false, add_layer_fn, sizeof(add_layer_fn))) {
                 spdlog::error("[Renderer] Failed to calculate add_layer");
                 return nullptr;
             }
@@ -171,13 +172,13 @@ sdk::NativeArray<RenderLayer*>& RenderLayer::get_layers() {
         for (auto i = 0; i < 0x500; i += sizeof(void*)) {
             auto ptr = *(RenderLayer***)((uintptr_t)root_layer + i);
 
-            if (ptr == nullptr || IsBadReadPtr(ptr, sizeof(ptr))) {
+            if (ptr == nullptr || sdk::memory::IsBadMemPtr(false, ptr, sizeof(ptr))) {
                 continue;
             }
 
             const auto potential_layer = *ptr;
 
-            if (potential_layer == nullptr || IsBadReadPtr(potential_layer, sizeof(potential_layer))) {
+            if (potential_layer == nullptr || sdk::memory::IsBadMemPtr(false, potential_layer, sizeof(potential_layer))) {
                 continue;
             }
 

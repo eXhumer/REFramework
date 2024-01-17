@@ -80,5 +80,56 @@ void deallocate(void* ptr) {
 
     deallocate_fn(ptr);
 }
+
+BOOL IsBadMemPtr(BOOL write, void* ptr, size_t size) {
+    MEMORY_BASIC_INFORMATION mbi;
+    BOOL ok;
+    DWORD mask;
+    BYTE* p = (BYTE*)ptr;
+    BYTE* maxp = p + size;
+    BYTE* regend = NULL;
+
+    if (size == 0) {
+        return FALSE;
+    }
+
+    if (p == NULL) {
+        return TRUE;
+    }
+
+    if (write == FALSE) {
+        mask = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+    } else {
+        mask = PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+    }
+
+    do {
+        if (p == ptr || p == regend) {
+            if (VirtualQuery((LPCVOID)p, &mbi, sizeof(mbi)) == 0) {
+                return TRUE;
+            } else {
+                regend = ((BYTE*)mbi.BaseAddress + mbi.RegionSize);
+            }
+        }
+
+        ok = (mbi.Protect & mask) != 0;
+
+        if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS)) {
+            ok = FALSE;
+        }
+
+        if (!ok) {
+            return TRUE;
+        }
+
+        if (maxp <= regend) {
+            return FALSE;
+        } else if (maxp > regend) {
+            p = regend;
+        }
+    } while (p < maxp);
+
+    return FALSE;
+}
 }
 }

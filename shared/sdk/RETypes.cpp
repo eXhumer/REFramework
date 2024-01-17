@@ -1,5 +1,6 @@
 #include <spdlog/spdlog.h>
 
+#include "Memory.hpp"
 #include "utility/Scan.hpp"
 #include "utility/Module.hpp"
 
@@ -241,7 +242,7 @@ void RETypes::refresh_map() {
     for (auto i = 0; i < typeList.numAllocated; ++i) {
         auto t = (*typeList.data)[i];
 
-        if (t == nullptr || IsBadReadPtr(t, sizeof(REType)) || ((uintptr_t)t & (sizeof(void*) - 1)) != 0) {
+        if (t == nullptr || sdk::memory::IsBadMemPtr(false, t, sizeof(REType)) || ((uintptr_t)t & (sizeof(void*) - 1)) != 0) {
             continue;
         }
 
