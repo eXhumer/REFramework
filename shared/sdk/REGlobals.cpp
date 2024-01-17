@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Memory.hpp"
 #include "utility/Scan.hpp"
 #include "utility/Module.hpp"
 
@@ -44,7 +45,7 @@ REGlobals::REGlobals() {
             continue;
         }
 
-        if (IsBadReadPtr((void*)ptr, sizeof(void*))) {
+        if (sdk::memory::IsBadMemPtr(false, (void*)ptr, sizeof(void*))) {
             continue;
         }
 
@@ -109,7 +110,7 @@ std::vector<REManagedObject*> REGlobals::get_objects() {
 
     if (!m_object_list.empty()) {
         for (auto obj_ptr : m_object_list) {
-            if (*obj_ptr != nullptr && !IsBadReadPtr(*obj_ptr, sizeof(void*))) {
+            if (*obj_ptr != nullptr && !sdk::memory::IsBadMemPtr(false, *obj_ptr, sizeof(void*))) {
                 out.push_back(*obj_ptr);
             }
         }
@@ -233,7 +234,7 @@ void REGlobals::refresh_map() {
             continue;
         }
 
-        if (IsBadReadPtr(obj, sizeof(REManagedObject))) {
+        if (sdk::memory::IsBadMemPtr(false, obj, sizeof(REManagedObject))) {
             continue;
         }
 

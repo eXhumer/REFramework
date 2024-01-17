@@ -281,34 +281,34 @@ REFramework::REFramework(HMODULE reframework_module)
     startup_lookup_thread->detach();
 #endif
 
-#if defined(REENGINE_AT)
-    ULONG_PTR loader_magic = 0;
-    auto lock_loader = (PFN_LdrLockLoaderLock)GetProcAddress(ntdll, "LdrLockLoaderLock");
-    auto unlock_loader = (PFN_LdrUnlockLoaderLock)GetProcAddress(ntdll, "LdrUnlockLoaderLock");
+// #if defined(REENGINE_AT)
+//     ULONG_PTR loader_magic = 0;
+//     auto lock_loader = (PFN_LdrLockLoaderLock)GetProcAddress(ntdll, "LdrLockLoaderLock");
+//     auto unlock_loader = (PFN_LdrUnlockLoaderLock)GetProcAddress(ntdll, "LdrUnlockLoaderLock");
 
-    if (lock_loader != nullptr && unlock_loader != nullptr) {
-        lock_loader(0, NULL, &loader_magic);
-    }
-    utility::ThreadSuspender suspender{};
-    if (lock_loader != nullptr && unlock_loader != nullptr) {
-        unlock_loader(0, loader_magic);
-    }
+//     if (lock_loader != nullptr && unlock_loader != nullptr) {
+//         lock_loader(0, NULL, &loader_magic);
+//     }
+//     utility::ThreadSuspender suspender{};
+//     if (lock_loader != nullptr && unlock_loader != nullptr) {
+//         unlock_loader(0, loader_magic);
+//     }
 
-    IntegrityCheckBypass::ignore_application_entries();
+//     IntegrityCheckBypass::ignore_application_entries();
 
-#if defined(RE8) || defined(RE4) || defined(SF6)
-    // Also done on RE4 because some of the scans are the same.
-    IntegrityCheckBypass::immediate_patch_re8();
-#endif
+// #if defined(RE8) || defined(RE4) || defined(SF6)
+//     // Also done on RE4 because some of the scans are the same.
+//     IntegrityCheckBypass::immediate_patch_re8();
+// #endif
 
-#if defined(RE4) || defined(SF6)
-    // Fixes new code added in RE4 only.
-    IntegrityCheckBypass::immediate_patch_re4();
-#endif
-    // Seen in SF6
-    IntegrityCheckBypass::remove_stack_destroyer();
-    suspender.resume();
-#endif
+// #if defined(RE4) || defined(SF6)
+//     // Fixes new code added in RE4 only.
+//     IntegrityCheckBypass::immediate_patch_re4();
+// #endif
+//     // Seen in SF6
+//     IntegrityCheckBypass::remove_stack_destroyer();
+//     suspender.resume();
+// #endif
 
     // Hooking D3D12 initially because we need to retrieve the command queue before the first frame then switch to D3D11 if it failed later
     // on

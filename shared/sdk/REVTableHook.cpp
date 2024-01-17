@@ -4,6 +4,8 @@
 
 #include "REVTableHook.hpp"
 
+#include "Memory.hpp"
+
 namespace sdk {
 REVTableHook::REVTableHook(::REManagedObject* target)
     : m_object{target}
@@ -43,7 +45,7 @@ uint32_t REVTableHook::calculate_vtable_size(void** vtable) const {
     uint32_t size{0};
 
     for (auto i = 0; i < 512; ++i) {
-        if (IsBadReadPtr(vtable + i, sizeof(void*))) {
+        if (sdk::memory::IsBadMemPtr(false, vtable + i, sizeof(void*))) {
             return size;
         }
 
@@ -80,7 +82,7 @@ bool REVTableHook::hook() {
     for (uint32_t i = 0; i < 0x1000; i += sizeof(void*)) {
         const auto ptr = (void**)((uintptr_t)m_original_object_info - i);
 
-        if (IsBadReadPtr(ptr, sizeof(void*))) {
+        if (sdk::memory::IsBadMemPtr(false, ptr, sizeof(void*))) {
             break;
         }
 
@@ -96,7 +98,7 @@ bool REVTableHook::hook() {
     for (uint32_t i = 0; i < 0x1000; i += sizeof(void*)) {
         const auto ptr = (void**)((uintptr_t)m_original_object_info + i);
 
-        if (IsBadReadPtr(ptr, sizeof(void*))) {
+        if (sdk::memory::IsBadMemPtr(false, ptr, sizeof(void*))) {
             break;
         }
 
