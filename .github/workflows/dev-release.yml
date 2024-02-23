@@ -40,16 +40,12 @@ jobs:
           path: ${{github.workspace}}/${{matrix.target}}.zip
           if-no-files-found: error
 
-      - name: Set output
-        id: vars
-        run: echo "SHA_SHORT=$("${{ github.sha }}".SubString(0, 8))" >> $env:GITHUB_OUTPUT
-
       - name: Release
         if: github.ref == 'refs/heads/pd-upscaler'
         uses: softprops/action-gh-release@v0.1.13
         with:
           repository: eXhumer/REFramework
           token: ${{secrets.REPO_TOKEN}}
-          name: ${{format('v1.{0}-{1}-{2}', github.run_number, steps.vars.outputs.SHA_SHORT, github.ref_name)}}
+          name: ${{format('REF Nightly {0} ({1})', github.run_number, github.sha)}}
           tag_name: empress-pd-upscaler
           files: ${{github.workspace}}/${{matrix.target}}.zip
